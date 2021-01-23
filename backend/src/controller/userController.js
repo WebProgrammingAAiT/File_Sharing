@@ -1,7 +1,6 @@
 import UserCollection from '../models/userModel.js';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt'
-import { nanoid } from 'nanoid'
 import { customAlphabet } from 'nanoid';
 const alphabet = '0123456789';
 

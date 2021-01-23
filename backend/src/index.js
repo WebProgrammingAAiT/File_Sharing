@@ -1,6 +1,8 @@
 import express from 'express'
 import mongoose from 'mongoose';
-import userRoutes from './routes/authRoutes.js'
+import authRoutes from './routes/authRoutes.js'
+import categoryRoutes from './routes/categoryRoutes.js'
+
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -12,7 +14,9 @@ app.get("/", (req, res) => {
 
 //middlewares
 app.use(express.json())
-app.use('/api', userRoutes)
+app.use('/api', authRoutes)
+app.use('/api', categoryRoutes)
+
 
 // *Database connection
 mongoose.connect("mongodb+srv://amp_user:XGL1tlzb3CJwdovc@cluster0.vwrd1.mongodb.net/fileshare?retryWrites=true&w=majority", {
