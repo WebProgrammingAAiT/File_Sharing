@@ -22,24 +22,24 @@ export const getCategories = (req, res) => {
         if (err) {
             res.status(500).json(err)
         } else {
-            const sortedCategories = sortCategories(categories);
-            res.status(200).json(sortedCategories)
+            // const sortedCategories = sortCategories(categories);
+            res.status(200).json(categories)
         }
     })
 }
 
-function sortCategories(categories, parentId) {
-    const categoriesList = [];
-    let variyingCategoryList;
-    if (parentId == null) {
-        variyingCategoryList = categories.filter(cat => cat.parentId == undefined)
-    } else {
-        variyingCategoryList = categories.filter(cat => cat.parentId == parentId)
-    }
+// function sortCategories(categories, parentId) {
+//     const categoriesList = [];
+//     let variyingCategoryList;
+//     if (parentId == null) {
+//         variyingCategoryList = categories.filter(cat => cat.parentId == undefined)
+//     } else {
+//         variyingCategoryList = categories.filter(cat => cat.parentId == parentId)
+//     }
 
-    for (let cat of variyingCategoryList) {
-        categoriesList.push({ id: cat._id, name: cat.name, parentId: cat.parentId, children: sortCategories(categories, cat._id) })
-    }
+//     for (let cat of variyingCategoryList) {
+//         categoriesList.push({ id: cat._id, name: cat.name, parentId: cat.parentId, children: sortCategories(categories, cat._id) })
+//     }
 
-    return categoriesList;
-}
+//     return categoriesList;
+// }
