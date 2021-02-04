@@ -2,6 +2,8 @@ import express from 'express'
 import mongoose from 'mongoose';
 import authRoutes from './routes/authRoutes.js'
 import categoryRoutes from './routes/categoryRoutes.js'
+import resourceRoutes from './routes/resourceRoutes.js'
+
 import cors from 'cors'
 
 const app = express();
@@ -17,6 +19,8 @@ app.use(cors())
 app.use(express.json())
 app.use('/api', authRoutes)
 app.use('/api', categoryRoutes)
+app.use('/api', resourceRoutes)
+
 
 
 // *Database connection
