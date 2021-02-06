@@ -29,6 +29,21 @@ export const getCategories = (req, res) => {
     })
 }
 
+export const updateCategory = (req, res) => {
+    const { id } = req.params
+    if (id) {
+        CategoryCollection.findOneAndUpdate({ _id: id }, { name: req.body.name }, { new: true }, (err, updatedCategory) => {
+            if (err) {
+                res.status(500).json({ message: err })
+            } else {
+                res.status(200).json(updatedCategory)
+            }
+        });
+    } else {
+        res.status(400).json({ message: 'Category id required' })
+    }
+}
+
 // function sortCategories(categories, parentId) {
 //     const categoriesList = [];
 //     let variyingCategoryList;
