@@ -1,9 +1,10 @@
 import CategoryCollection from '../models/categoryModel.js';
 
 export const createCategory = (req, res) => {
-    const { name } = req.body;
+    const { name, type } = req.body;
     let categoryObject = {
-        name: name
+        name,
+        type
     }
     if (req.body.parentId) {
         categoryObject.parentId = req.body.parentId

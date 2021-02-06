@@ -7,7 +7,7 @@ const CategorySchema = new mongoose.Schema({
         trim: true
     },
     parentId: { type: String },
-    type: { type: String, enum: ['year', 'department', 'subject'] }
+    type: { type: String, enum: ['year', 'department', 'subject'], required: true }
 }, { timestamps: true });
 
 export default mongoose.model('Category', CategorySchema);
