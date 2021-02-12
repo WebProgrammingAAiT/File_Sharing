@@ -34,6 +34,7 @@ const ResourceSchema = new mongoose.Schema({
     fileSize: { type: Number },
     fileType: {
         type: String,
+        required: true,
         enum: ['image', 'pdf']
     }
 }, { timestamps: true });
