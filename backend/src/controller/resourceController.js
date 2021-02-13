@@ -28,14 +28,30 @@ export const createResource = (req, res) => {
 }
 
 export const getResources = async (req, res) => {
-    const resources = await ResourceCollection.find({})
-        .select('_id name filetype likes dislikes  files fileSize createdBy year department subject')
-        .populate({ path: 'year', select: '_id name' })
-        .populate({ path: 'department', select: '_id name' })
-        .populate({ path: 'subject', select: '_id name' })
-        .populate({ path: 'createdBy', select: '_id username' })
+    const resources = await ResourceCollection.find()
+        .select('_id name fileType likes dislikes  files fileSize createdBy year department subject')
+        .populate({ path: 'year', select: 'name ' })
+        .populate({ path: 'department', select: 'name' })
+        .populate({ path: 'subject', select: ' name' })
+        .populate({ path: 'createdBy', select: ' username' })
         .exec();
-    res.status(200).json(resources);
+
+    //! useful for getting like value
+
+    let sendableResources = [];
+
+    resources.forEach(resource => {
+        const resourceObj = { _id: resource.id, name: resource.name, files: resource.files, fileSize: resource.fileSize, createdBy: resource.createdBy, year: resource.year, department: resource.department, subject: resource.subject };
+        if (resource.likes.includes(req.userId)) {
+            sendableResources.push({ ...resourceObj, isLiked: true, likes: resource.likes.length, dislikes: resource.dislikes.length, isDisliked: false });
+        } else if (resource.dislikes.includes(req.userId)) {
+            sendableResources.push({ ...resourceObj, isLiked: false, likes: resource.likes.length, dislikes: resource.dislikes.length, isDisliked: true });
+        } else {
+            sendableResources.push({ ...resourceObj, isLiked: false, likes: resource.likes.length, dislikes: resource.dislikes.length, isDisliked: false });
+        }
+    });
+
+    res.status(200).json(sendableResources);
 }
 
 
@@ -46,7 +62,15 @@ export const getResourceById = (req, res) => {
             if (err) {
                 res.status(500).json({ message: err })
             } else if (resource) {
-                res.status(200).json(resource)
+                let resourceObj = { _id: resource.id, name: resource.name, files: resource.files, fileSize: resource.fileSize, createdBy: resource.createdBy, year: resource.year, department: resource.department, subject: resource.subject };
+                if (resource.likes.includes(req.userId)) {
+                    resourceObj = { ...resourceObj, isLiked: true, likes: resource.likes.length, dislikes: resource.dislikes.length, isDisliked: false };
+                } else if (resource.dislikes.includes(req.userId)) {
+                    resourceObj = { ...resourceObj, isLiked: false, likes: resource.likes.length, dislikes: resource.dislikes.length, isDisliked: true };
+                } else {
+                    resourceObj = { ...resourceObj, isLiked: false, likes: resource.likes.length, dislikes: resource.dislikes.length, isDisliked: false };
+                }
+                res.status(200).json(resourceObj)
             } else {
                 res.status(404).json({ message: 'Resource not found' })
             }

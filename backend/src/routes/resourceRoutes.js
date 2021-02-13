@@ -20,7 +20,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage })
 
 router.post('/resources', isAuthorized, isUser, upload.array('files'), createResource)
-router.get('/resources', getResources)
-router.get('/resources/:resourceId', getResourceById)
+router.get('/resources', isAuthorized, isUser, getResources)
+router.get('/resources/:resourceId', isAuthorized, isUser, getResourceById)
 
 export default router;
