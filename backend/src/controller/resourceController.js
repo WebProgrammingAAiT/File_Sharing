@@ -41,7 +41,7 @@ export const getResources = async (req, res) => {
     let sendableResources = [];
 
     resources.forEach(resource => {
-        const resourceObj = { _id: resource.id, name: resource.name, files: resource.files, fileSize: resource.fileSize, createdBy: resource.createdBy, year: resource.year, department: resource.department, subject: resource.subject };
+        const resourceObj = { _id: resource.id, name: resource.name, fileType: resource.fileType, files: resource.files, fileSize: resource.fileSize, createdBy: resource.createdBy, year: resource.year, department: resource.department, subject: resource.subject };
         if (resource.likes.includes(req.userId)) {
             sendableResources.push({ ...resourceObj, isLiked: true, likes: resource.likes.length, dislikes: resource.dislikes.length, isDisliked: false });
         } else if (resource.dislikes.includes(req.userId)) {
@@ -62,7 +62,7 @@ export const getResourceById = (req, res) => {
             if (err) {
                 res.status(500).json({ message: err })
             } else if (resource) {
-                let resourceObj = { _id: resource.id, name: resource.name, files: resource.files, fileSize: resource.fileSize, createdBy: resource.createdBy, year: resource.year, department: resource.department, subject: resource.subject };
+                let resourceObj = { _id: resource.id, name: resource.name, fileType: resource.fileType, files: resource.files, fileSize: resource.fileSize, createdBy: resource.createdBy, year: resource.year, department: resource.department, subject: resource.subject };
                 if (resource.likes.includes(req.userId)) {
                     resourceObj = { ...resourceObj, isLiked: true, likes: resource.likes.length, dislikes: resource.dislikes.length, isDisliked: false };
                 } else if (resource.dislikes.includes(req.userId)) {

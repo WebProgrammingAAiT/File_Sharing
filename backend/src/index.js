@@ -20,6 +20,7 @@ app.use(express.json())
 app.use('/api', authRoutes)
 app.use('/api', categoryRoutes)
 app.use('/api', resourceRoutes)
+app.use("/public", express.static("./src/uploads"));
 
 
 
