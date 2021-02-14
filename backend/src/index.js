@@ -3,6 +3,8 @@ import mongoose from 'mongoose';
 import authRoutes from './routes/authRoutes.js'
 import categoryRoutes from './routes/categoryRoutes.js'
 import resourceRoutes from './routes/resourceRoutes.js'
+import userRoutes from './routes/userRoutes.js'
+
 
 import cors from 'cors'
 
@@ -20,6 +22,8 @@ app.use(express.json())
 app.use('/api', authRoutes)
 app.use('/api', categoryRoutes)
 app.use('/api', resourceRoutes)
+app.use('/api', userRoutes)
+
 app.use("/public", express.static("./src/uploads"));
 
 
