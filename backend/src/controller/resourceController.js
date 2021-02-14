@@ -29,41 +29,48 @@ export const createResource = (req, res) => {
 }
 
 export const getResources = async (req, res) => {
-    const resources = await ResourceCollection.find()
-        .select('_id name fileType likes dislikes  files fileSize createdBy year department subject')
-        .populate({ path: 'year', select: 'name ' })
-        .populate({ path: 'department', select: 'name' })
-        .populate({ path: 'subject', select: ' name' })
-        .populate({ path: 'createdBy', select: ' username' })
-        .exec();
+    try {
 
-    //! useful for getting like value
+        const resources = await ResourceCollection.find()
+            .select('_id name fileType likes dislikes  files fileSize createdBy year department subject')
+            .populate({ path: 'year', select: 'name ' })
+            .populate({ path: 'department', select: 'name' })
+            .populate({ path: 'subject', select: ' name' })
+            .populate({ path: 'createdBy', select: ' username' })
+            .exec();
 
-    let sendableResources = [];
+        //! useful for getting like value
 
-    resources.forEach(resource => {
-        const resourceObj = { _id: resource.id, name: resource.name, fileType: resource.fileType, files: resource.files, fileSize: resource.fileSize, createdBy: resource.createdBy, year: resource.year, department: resource.department, subject: resource.subject };
-        if (resource.likes.includes(req.userId)) {
-            sendableResources.push({ ...resourceObj, isLiked: true, likes: resource.likes.length, dislikes: resource.dislikes.length, isDisliked: false });
-        } else if (resource.dislikes.includes(req.userId)) {
-            sendableResources.push({ ...resourceObj, isLiked: false, likes: resource.likes.length, dislikes: resource.dislikes.length, isDisliked: true });
-        } else {
-            sendableResources.push({ ...resourceObj, isLiked: false, likes: resource.likes.length, dislikes: resource.dislikes.length, isDisliked: false });
-        }
-    });
+        let sendableResources = [];
 
-    res.status(200).json(sendableResources);
+        resources.forEach(resource => {
+            const resourceObj = { _id: resource.id, name: resource.name, fileType: resource.fileType, files: resource.files, fileSize: resource.fileSize, createdBy: resource.createdBy, year: resource.year, department: resource.department, subject: resource.subject };
+            if (resource.likes.includes(req.userId)) {
+                sendableResources.push({ ...resourceObj, isLiked: true, likes: resource.likes.length, dislikes: resource.dislikes.length, isDisliked: false });
+            } else if (resource.dislikes.includes(req.userId)) {
+                sendableResources.push({ ...resourceObj, isLiked: false, likes: resource.likes.length, dislikes: resource.dislikes.length, isDisliked: true });
+            } else {
+                sendableResources.push({ ...resourceObj, isLiked: false, likes: resource.likes.length, dislikes: resource.dislikes.length, isDisliked: false });
+            }
+        });
+
+        res.status(200).json(sendableResources);
+    } catch (e) {
+        res.status(500).json({ message: e.toString() })
+    }
 }
 
 
-export const getResourceById = (req, res) => {
+export const getResourceById = async (req, res) => {
     const { resourceId } = req.params
     if (resourceId) {
-        ResourceCollection.findOne({ _id: resourceId }, (err, resource) => {
-            if (err) {
-                res.status(500).json({ message: err })
-            } else if (resource) {
-                let resourceObj = { _id: resource.id, name: resource.name, fileType: resource.fileType, files: resource.files, fileSize: resource.fileSize, createdBy: resource.createdBy, year: resource.year, department: resource.department, subject: resource.subject };
+        try {
+            const resource = await ResourceCollection.findOne({ _id: resourceId })
+                .populate({ path: 'createdBy', select: 'username profilePicture ' })
+                .exec();
+            if (resource) {
+                let createdBy = { username: resource.createdBy.username, profilePicture: resource.createdBy.profilePicture }
+                let resourceObj = { _id: resource.id, name: resource.name, fileType: resource.fileType, files: resource.files, fileSize: resource.fileSize, createdBy, year: resource.year, department: resource.department, subject: resource.subject };
                 if (resource.likes.includes(req.userId)) {
                     resourceObj = { ...resourceObj, isLiked: true, likes: resource.likes.length, dislikes: resource.dislikes.length, isDisliked: false };
                 } else if (resource.dislikes.includes(req.userId)) {
@@ -75,7 +82,11 @@ export const getResourceById = (req, res) => {
             } else {
                 res.status(404).json({ message: 'Resource not found' })
             }
-        })
+
+        } catch (e) {
+            res.status(500).json({ message: e.toString() })
+        }
+
     }
 }
 

@@ -37,7 +37,7 @@ const userSchema = new mongoose.Schema({
         enum: ['user', 'admin'],
         default: 'user'
     },
-    profilePicture: String
+    profilePicture: { type: String, default: '' }
 }, { timestamps: true });
 
 export default mongoose.model('User', userSchema);

@@ -22,8 +22,8 @@ export const signUp = (req, res) => {
                 } else {
                     const secretKey = process.env.JWT_SECRET || 'somethingSecret'
                     const token = jwt.sign({ _id: createdUser._id, role: createdUser.role }, secretKey, { expiresIn: '1d' });
-                    const { _id, firstName, lastName, email, role, fullName, username } = createdUser;
-                    res.status(200).send({ token, user: { _id, firstName, lastName, email, role, fullName, username } })
+                    const { _id, firstName, lastName, email, role, fullName, username, profilePicture } = createdUser;
+                    res.status(200).send({ token, user: { _id, firstName, lastName, email, role, fullName, username, profilePicture } })
                 }
             });
 
@@ -42,8 +42,8 @@ export const signin = (req, res) => {
             if (validCredential) {
                 const secretKey = process.env.JWT_SECRET || 'somethingSecret'
                 const token = jwt.sign({ _id: user._id, role: user.role }, secretKey, { expiresIn: '1d' });
-                const { _id, firstName, lastName, email, role, fullName } = user;
-                res.status(200).send({ token, user: { _id, firstName, lastName, email, role, fullName } })
+                const { _id, firstName, lastName, email, role, fullName, profilePicture } = user;
+                res.status(200).send({ token, user: { _id, firstName, lastName, email, role, fullName, profilePicture } })
 
             }
             else {
