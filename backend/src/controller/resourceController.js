@@ -1,4 +1,5 @@
 import ResourceCollection from '../models/resourceModel.js';
+import mongoose from 'mongoose'
 
 export const createResource = (req, res) => {
     const { name, department, fileType, year, subject } = req.body;
@@ -77,3 +78,54 @@ export const getResourceById = (req, res) => {
         })
     }
 }
+
+
+export const likeDislikeResource = (req, res) => {
+    const { action } = req.query;
+    const { resourceId } = req.params
+
+    const { userId } = req;
+    if (action && resourceId) {
+        let update = {}
+        switch (action) {
+            case 'like':
+                update = { "$push": { "likes": userId } }
+                break;
+            case 'dislike':
+                update = { "$push": { "dislikes": userId } }
+                break;
+            case 'removeLike':
+                update = { $pull: { likes: userId } }
+                break;
+            case 'removeDislike':
+                update = { $pull: { dislikes: userId } }
+                break;
+            case 'removeLikeThenDislike':
+                update = { $pull: { likes: userId }, "$push": { "dislikes": userId } }
+                break;
+            case 'removeDislikeThenLike':
+                update = { $pull: { dislikes: userId }, "$push": { "likes": userId } }
+                break;
+
+        }
+
+        ResourceCollection.findOneAndUpdate({ _id: resourceId }, update, { new: true }, (err, updatedResource) => {
+            if (err) {
+                res.status(500).json({ message: err })
+            } else if (updatedResource) {
+                let resourceObj = { _id: updatedResource.id, name: updatedResource.name, fileType: updatedResource.fileType, files: updatedResource.files, fileSize: updatedResource.fileSize, createdBy: updatedResource.createdBy, year: updatedResource.year, department: updatedResource.department, subject: updatedResource.subject };
+                if (updatedResource.likes.includes(userId)) {
+                    resourceObj = { ...resourceObj, isLiked: true, likes: updatedResource.likes.length, dislikes: updatedResource.dislikes.length, isDisliked: false };
+                } else if (updatedResource.dislikes.includes(req.userId)) {
+                    resourceObj = { ...resourceObj, isLiked: false, likes: updatedResource.likes.length, dislikes: updatedResource.dislikes.length, isDisliked: true };
+                } else {
+                    resourceObj = { ...resourceObj, isLiked: false, likes: updatedResource.likes.length, dislikes: updatedResource.dislikes.length, isDisliked: false };
+                }
+                res.status(201).json(resourceObj)
+            } else {
+                res.status(404).json({ message: 'Resource not found' })
+            }
+        })
+    }
+}
+

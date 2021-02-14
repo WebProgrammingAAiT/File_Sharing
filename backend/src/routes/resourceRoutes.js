@@ -1,5 +1,5 @@
 import express from 'express';
-import { createResource, getResources, getResourceById } from '../controller/resourceController.js';
+import { createResource, getResources, getResourceById, likeDislikeResource } from '../controller/resourceController.js';
 import { isUser, isAuthorized } from '../middlewares/middleware.js'
 import multer from 'multer';
 import { nanoid } from 'nanoid';
@@ -22,5 +22,7 @@ const upload = multer({ storage: storage })
 router.post('/resources', isAuthorized, isUser, upload.array('files'), createResource)
 router.get('/resources', isAuthorized, isUser, getResources)
 router.get('/resources/:resourceId', isAuthorized, isUser, getResourceById)
+router.put('/resources/:resourceId', isAuthorized, isUser, likeDislikeResource)
+
 
 export default router;
