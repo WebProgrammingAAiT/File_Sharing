@@ -1,5 +1,6 @@
 import ResourceCollection from '../models/resourceModel.js';
 import mongoose from 'mongoose'
+import fs from 'fs';
 
 export const createResource = (req, res) => {
     const { name, department, fileType, year, subject } = req.body;
@@ -60,6 +61,71 @@ export const getResources = async (req, res) => {
     }
 }
 
+
+export const updateResource = (req, res) => {
+    const { resourceId } = req.params
+    const { name } = req.body
+    if (resourceId && name) {
+        ResourceCollection.findOneAndUpdate({ _id: resourceId }, { name: name }, { new: true }, (err, updatedResource) => {
+            if (err) {
+                res.status(500).json({ message: err })
+            } else {
+                res.status(200).json(updatedResource)
+            }
+        });
+    } else {
+        res.status(400).json({ message: 'Resource id with new name required' })
+    }
+}
+
+const deleteFileFromStorage = (filename) => {
+    return new Promise((resolve, reject) => {
+        try {
+            fs.unlinkSync(filename);
+            resolve("File is deleted.");
+        } catch (error) {
+            reject(error);
+        }
+    })
+}
+
+export const deleteResource = (req, res) => {
+    const { resourceId } = req.params
+    if (resourceId) {
+        ResourceCollection.findOne({ _id: resourceId }, (err, resource) => {
+            if (err) {
+                res.status(500).json({ message: err })
+            } else if (resource) {
+                const files = resource.files;
+                let promiseArray = [];
+
+                files.forEach((file) => {
+                    promiseArray.push(deleteFileFromStorage(`./src/uploads/${file.name}`))
+                })
+
+                Promise.all(promiseArray)
+                    .then(response => {
+                        ResourceCollection.findOneAndDelete({ _id: resourceId }, function (err, deletedResource) {
+                            if (err) {
+                                console.log(err)
+                            }
+                            else {
+                                res.status(200).json(deletedResource);
+                            }
+                        });
+                    })
+                    .catch(error => res.status(500).json(error));
+
+            } else {
+                res.status(404).json({ message: 'Resource not found' })
+
+            }
+        })
+
+    } else {
+        res.status(400).json({ message: 'Resource id required' })
+    }
+}
 
 export const getResourceById = async (req, res) => {
     const { resourceId } = req.params

@@ -29,7 +29,7 @@ app.use("/public", express.static("./src/uploads"));
 
 
 // *Database connection
-mongoose.connect("mongodb+srv://amp_user:XGL1tlzb3CJwdovc@cluster0.vwrd1.mongodb.net/fileshare?retryWrites=true&w=majority", {
+mongoose.connect("mongodb://localhost/fileshare", {
     useCreateIndex: true,
     useNewUrlParser: true,
     useUnifiedTopology: true,

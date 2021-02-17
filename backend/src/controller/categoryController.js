@@ -43,7 +43,21 @@ export const updateCategory = (req, res) => {
         res.status(400).json({ message: 'Category id required' })
     }
 }
-
+//TODO delete category
+// export const deleteCategory = (req, res) => {
+//     const { id } = req.params
+//     if (id) {
+//         CategoryCollection.findOneAndDelete({ _id: id }, { new: true }, (err, deletedCategory) => {
+//             if (err) {
+//                 res.status(500).json({ message: err })
+//             } else {
+//                 res.status(200).json(deletedCategory)
+//             }
+//         });
+//     } else {
+//         res.status(400).json({ message: 'Category id required' })
+//     }
+// }
 // function sortCategories(categories, parentId) {
 //     const categoriesList = [];
 //     let variyingCategoryList;
