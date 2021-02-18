@@ -37,6 +37,12 @@ const userSchema = new mongoose.Schema({
         enum: ['user', 'admin'],
         default: 'user'
     },
+    year: {
+        type: mongoose.Schema.Types.ObjectId, ref: 'Category'
+    },
+    department: {
+        type: mongoose.Schema.Types.ObjectId, ref: 'Category'
+    },
     profilePicture: { type: String, default: '' }
 }, { timestamps: true });
 

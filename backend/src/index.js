@@ -25,6 +25,8 @@ app.use('/api', resourceRoutes)
 app.use('/api', userRoutes)
 
 app.use("/public", express.static("./src/uploads"));
+app.use("/public/userProfilePictures", express.static("./src/uploads/profilePictures"));
+
 
 
 
