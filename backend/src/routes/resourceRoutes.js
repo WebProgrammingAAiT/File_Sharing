@@ -1,5 +1,5 @@
 import express from 'express';
-import { createResource, getResources, getResourceById, likeDislikeResource, updateResource, deleteResource, getResourcesByUserId } from '../controller/resourceController.js';
+import { createResource, getResources, getResourceById, likeDislikeResource, updateResource, deleteResource, getResourcesByUserId, getResourcesBySubject } from '../controller/resourceController.js';
 import { isUser, isAuthorized } from '../middlewares/middleware.js'
 import multer from 'multer';
 import { nanoid } from 'nanoid';
@@ -20,12 +20,13 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage })
 
 router.post('/resources', isAuthorized, isUser, upload.array('files'), createResource)
-router.get('/resources', isAuthorized, isUser, getResources)
-router.get('/resources/:resourceId', isAuthorized, isUser, getResourceById)
-router.get('/userResources/:userId', isAuthorized, isUser, getResourcesByUserId)
+router.get('/resources', isAuthorized, getResources)
+router.get('/resources/:resourceId', isAuthorized, getResourceById)
+router.get('/userResources/:userId', isAuthorized, getResourcesByUserId)
+router.get('/subjectResources/:subjectId', isAuthorized, getResourcesBySubject)
 router.put('/resources/:resourceId/update', isAuthorized, isUser, updateResource)
 router.put('/resources/:resourceId', isAuthorized, isUser, likeDislikeResource)
-router.delete('/resources/:resourceId/delete', isAuthorized, isUser, deleteResource)
+router.delete('/resources/:resourceId/delete', isAuthorized, deleteResource)
 
 
 

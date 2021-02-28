@@ -3,9 +3,9 @@ import multer from 'multer';
 import { nanoid } from 'nanoid';
 import path from 'path';
 
-import { isAdmin, isAuthorized } from '../middlewares/middleware.js'
+import { isAdmin, isAuthorized, isDeleteOperationAuthorized } from '../middlewares/middleware.js'
 
-import { getUserById, getUsers, updateUser } from '../controller/userController.js'
+import { deleteUser, getUserById, getUsers, updateUser } from '../controller/userController.js'
 
 const router = express.Router();
 
@@ -25,6 +25,7 @@ const upload = multer({ storage: storage })
 router.get('/users', isAuthorized, getUsers)
 router.get('/users/:userId', isAuthorized, getUserById)
 router.put('/users/:userId', isAuthorized, upload.single('profilePicture'), updateUser)
+router.delete('/users/:userId', isAuthorized, isDeleteOperationAuthorized, deleteUser)
 
 
 export default router;

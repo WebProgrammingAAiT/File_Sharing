@@ -28,6 +28,14 @@ export const isAdmin = (req, res, next) => {
     }
 }
 
+export const isDeleteOperationAuthorized = (req, res, next) => {
+    if (req.role == 'admin' || req.userId == req.params.userId) {
+        next();
+    } else {
+        res.status(401).send("Unauthorized operation")
+    }
+}
+
 export const isUser = (req, res, next) => {
 
     if (req.role !== "user") {

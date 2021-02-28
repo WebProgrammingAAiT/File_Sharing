@@ -1,5 +1,8 @@
 import UserCollection from '../models/userModel.js';
 import bcrypt from 'bcrypt'
+import ResourceCollection from '../models/resourceModel.js';
+import mongoose from 'mongoose'
+import fs from 'fs';
 
 
 
@@ -110,4 +113,86 @@ export const updateUser = (req, res) => {
     } else {
         res.status(400).json({ message: 'User id required' })
     }
+
+}
+export const deleteUser = (req, res) => {
+    const userId = req.params.userId
+    if (userId) {
+        ResourceCollection.find({ createdBy: userId }, (err, resources) => {
+            if (err) {
+                res.status(500).json({ message: err })
+            } else if (resources) {
+                let resourcePromiseArray = []
+
+                resources.forEach(resource => {
+                    resourcePromiseArray.push(deleteResource(resource))
+                })
+                Promise.all(resourcePromiseArray)
+                    .then(response => {
+                        UserCollection.findOneAndDelete({ _id: userId }, function (err, deletedUser) {
+                            if (err) {
+                                console.log(err)
+                                throw (err)
+                            } else {
+                                res.status(204).send();
+                            }
+                        });
+                    })
+                    .catch(error => res.status(500).json({ message: error }));
+
+
+            } else {
+                res.status(404).json({ message: 'Resources created by the given user not found' })
+
+            }
+        })
+
+    } else {
+        res.status(400).json({ message: 'User id required' })
+    }
+}
+
+
+const deleteFileFromStorage = (filename) => {
+    return new Promise((resolve, reject) => {
+        try {
+            fs.unlinkSync(filename);
+            resolve("File is deleted.");
+        } catch (error) {
+            console.log(error)
+
+            reject(error);
+        }
+    })
+}
+
+const deleteResource = (resource) => {
+    return new Promise((resolve, reject) => {
+        try {
+            const files = resource.files;
+            let promiseArray = [];
+
+            files.forEach((file) => {
+                promiseArray.push(deleteFileFromStorage(`./src/uploads/${file.name}`))
+            })
+
+            Promise.all(promiseArray)
+                .then(response => {
+                    ResourceCollection.findOneAndDelete({ _id: resource._id }, function (err, deletedResource) {
+                        if (err) {
+                            console.log(err)
+                            throw (err)
+                        } else (resolve(response))
+                    });
+                })
+                .catch(error => {
+                    console.log(error)
+                    reject(error)
+                });
+
+        } catch (error) {
+            console.log(error)
+            reject(error);
+        }
+    })
 }

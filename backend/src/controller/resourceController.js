@@ -271,8 +271,41 @@ export const likeDislikeResource = async (req, res) => {
 
         }
 
+    }
+}
 
+export const getResourcesBySubject = async (req, res) => {
+    const { subjectId } = req.params
+    if (subjectId) {
+        try {
 
+            const resources = await ResourceCollection.find({ subject: subjectId })
+                .select('_id name fileType likes dislikes  files fileSize createdBy year department subject createdAt')
+                .populate({ path: 'year', select: 'name ' })
+                .populate({ path: 'department', select: 'name' })
+                .populate({ path: 'subject', select: ' name' })
+                .populate({ path: 'createdBy', select: ' username profilePicture' })
+                .exec();
+
+            //! useful for getting like value
+
+            let sendableResources = [];
+            resources.forEach(resource => {
+                let createdBy = { _id: resource.createdBy._id, username: resource.createdBy.username, profilePicture: resource.createdBy.profilePicture }
+                const resourceObj = { _id: resource.id, name: resource.name, fileType: resource.fileType, files: resource.files, fileSize: resource.fileSize, year: resource.year, department: resource.department, subject: resource.subject, createdBy, createdAt: resource.createdAt };
+                if (resource.likes.includes(req.userId)) {
+                    sendableResources.push({ ...resourceObj, isLiked: true, likes: resource.likes.length, dislikes: resource.dislikes.length, isDisliked: false });
+                } else if (resource.dislikes.includes(req.userId)) {
+                    sendableResources.push({ ...resourceObj, isLiked: false, likes: resource.likes.length, dislikes: resource.dislikes.length, isDisliked: true });
+                } else {
+                    sendableResources.push({ ...resourceObj, isLiked: false, likes: resource.likes.length, dislikes: resource.dislikes.length, isDisliked: false });
+                }
+            });
+
+            res.status(200).json(sendableResources);
+        } catch (e) {
+            res.status(500).json({ message: e.toString() })
+        }
 
     }
 }
