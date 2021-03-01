@@ -45,7 +45,7 @@ export const updateCategory = (req, res) => {
         res.status(400).json({ message: 'Category id required' })
     }
 }
-//TODO delete category
+
 export const deleteCategory = (req, res) => {
     const { id } = req.params
     const { categoryType } = req.query

@@ -4,6 +4,8 @@ import authRoutes from './routes/authRoutes.js'
 import categoryRoutes from './routes/categoryRoutes.js'
 import resourceRoutes from './routes/resourceRoutes.js'
 import userRoutes from './routes/userRoutes.js'
+import roleRoutes from './routes/roleRoutes.js'
+
 
 
 import cors from 'cors'
@@ -23,6 +25,8 @@ app.use('/api', authRoutes)
 app.use('/api', categoryRoutes)
 app.use('/api', resourceRoutes)
 app.use('/api', userRoutes)
+app.use('/api', roleRoutes)
+
 
 app.use("/public", express.static("./src/uploads"));
 app.use("/public/userProfilePictures", express.static("./src/uploads/profilePictures"));

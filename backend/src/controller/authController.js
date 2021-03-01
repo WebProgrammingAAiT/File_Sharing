@@ -15,15 +15,25 @@ export const signUp = (req, res) => {
         } else {
             const hashPassword = await bcrypt.hash(password, 10);
             UserCollection.create({
-                firstName: firstName, lastName: lastName, email: email, hashPassword, username: firstName + nanoid(), role: req.body.role ? req.body.role : 'user'
-            }, (err, createdUser) => {
+                firstName: firstName, lastName: lastName, email: email, hashPassword, username: firstName + nanoid()
+            }, async (err, createdUser) => {
                 if (err) {
                     res.status(500).send(err.message)
                 } else {
-                    const secretKey = process.env.JWT_SECRET || 'somethingSecret'
-                    const token = jwt.sign({ _id: createdUser._id, role: createdUser.role }, secretKey, { expiresIn: '1d' });
-                    const { _id, firstName, lastName, email, role, fullName, username, profilePicture } = createdUser;
-                    res.status(200).send({ token, user: { _id, firstName, lastName, email, role, fullName, username, profilePicture } })
+                    try {
+                        const user = await UserCollection.findOne({ _id: createdUser._id })
+                            .populate({ path: 'role', select: 'name ' })
+                            .exec()
+                        if (user) {
+                            const secretKey = process.env.JWT_SECRET || 'somethingSecret'
+                            const roleName = user.role.name
+                            const token = jwt.sign({ _id: user._id, role: roleName }, secretKey, { expiresIn: '7d' });
+                            const { _id, firstName, lastName, email, fullName, username, role, profilePicture } = user;
+                            res.status(200).send({ token, user: { _id, firstName, lastName, email, role, fullName, username, profilePicture } })
+                        }
+                    } catch (e) {
+                        res.status(500).json({ message: e.toString() })
+                    }
                 }
             });
 
@@ -33,16 +43,20 @@ export const signUp = (req, res) => {
 
 }
 
-export const signin = (req, res) => {
-    UserCollection.findOne({ email: req.body.email }, async (err, user) => {
-        if (err) {
-            res.status(500).json({ message: err })
-        } else if (user) {
+export const signin = async (req, res) => {
+
+    try {
+        const user = await UserCollection.findOne({ email: req.body.email })
+            .populate({ path: 'role', select: 'name ' })
+            .exec()
+        if (user) {
             const validCredential = await bcrypt.compare(req.body.password, user.hashPassword)
             if (validCredential) {
                 const secretKey = process.env.JWT_SECRET || 'somethingSecret'
-                const token = jwt.sign({ _id: user._id, role: user.role }, secretKey, { expiresIn: '1d' });
-                const { _id, firstName, lastName, email, role, fullName, profilePicture } = user;
+                const roleName = user.role.name
+
+                const token = jwt.sign({ _id: user._id, role: roleName }, secretKey, { expiresIn: '7d' });
+                const { _id, firstName, lastName, email, fullName, profilePicture, role } = user;
                 res.status(200).send({ token, user: { _id, firstName, lastName, email, role, fullName, profilePicture } })
 
             }
@@ -52,5 +66,11 @@ export const signin = (req, res) => {
         } else {
             res.status(404).json({ message: 'Invalid credentials' })
         }
-    })
+
+    } catch (e) {
+        res.status(500).json({ message: e.toString() })
+    }
+
+
+
 }

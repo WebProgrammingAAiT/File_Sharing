@@ -14,6 +14,8 @@ export const getUserById = async (req, res) => {
             const user = await UserCollection.findOne({ _id: userId })
                 .populate({ path: 'year', select: 'name ' })
                 .populate({ path: 'department', select: 'name' })
+                .populate({ path: 'role', select: 'name' })
+                .exec()
             if (user) {
                 res.status(200).json(user)
             } else {
@@ -29,14 +31,19 @@ export const getUserById = async (req, res) => {
 }
 
 
-export const getUsers = (req, res) => {
-    UserCollection.find({}, (err, users) => {
-        if (err) {
-            res.status(500).json(err)
-        } else {
-            res.status(200).json(users)
-        }
-    })
+export const getUsers = async (req, res) => {
+    try {
+        const users = await UserCollection.find({})
+            .select('_id profilePicture role username email')
+            .populate({ path: 'role', select: 'name' })
+            .exec()
+        res.status(200).json(users)
+
+    } catch (e) {
+        res.status(500).json({ message: e.toString() })
+    }
+
+
 }
 
 export const updateUser = (req, res) => {
@@ -196,3 +203,4 @@ const deleteResource = (resource) => {
         }
     })
 }
+

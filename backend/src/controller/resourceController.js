@@ -64,10 +64,16 @@ export const getResources = async (req, res) => {
 
 export const updateResource = async (req, res) => {
     const { resourceId } = req.params
-    const { name } = req.body
+    const { name, year, department, subject } = req.body
     if (resourceId && name) {
         try {
-            const updatedResource = await ResourceCollection.findOneAndUpdate({ _id: resourceId }, { name: name }, { new: true })
+            let resourceObj = { name }
+            if (year !== undefined && year !== '' && department !== undefined && department !== '' && subject !== undefined && subject !== '') {
+                resourceObj.year = year
+                resourceObj.department = department
+                resourceObj.subject = subject
+            }
+            const updatedResource = await ResourceCollection.findOneAndUpdate({ _id: resourceId }, { ...resourceObj }, { new: true })
                 .populate({ path: 'createdBy', select: 'username profilePicture ' })
                 .populate({ path: 'year', select: 'name ' })
                 .populate({ path: 'department', select: 'name' })
