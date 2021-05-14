@@ -1,6 +1,7 @@
 import ResourceCollection from '../models/resourceModel.js';
 import mongoose from 'mongoose'
 import fs from 'fs';
+import { serialize } from 'v8';
 
 export const createResource = (req, res) => {
     const { name, department, fileType, year, subject } = req.body;
@@ -30,9 +31,13 @@ export const createResource = (req, res) => {
 }
 
 export const getResources = async (req, res) => {
+    const { searchTerm } = req.query;
+    let name = {}
+    if (searchTerm !== undefined)
+        name = { name: { $regex: searchTerm, $options: "i" } }
     try {
 
-        const resources = await ResourceCollection.find()
+        const resources = await ResourceCollection.find(name)
             .select('_id name fileType likes dislikes  files fileSize createdBy year department subject createdAt')
             .populate({ path: 'year', select: 'name ' })
             .populate({ path: 'department', select: 'name' })
